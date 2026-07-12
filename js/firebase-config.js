@@ -12,12 +12,12 @@
 */
 
 const FIREBASE_CONFIG = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID",
+  apiKey: "AIzaSyAv_ReYofgdCRXXeikxTOWzaDirlCI5GB4",
+  authDomain: "nuestrapagina-e19c3.firebaseapp.com",
+  projectId: "nuestrapagina-e19c3",
+  storageBucket: "nuestrapagina-e19c3.firebasestorage.app",
+  messagingSenderId: "115699401942",
+  appId: "1:115699401942:web:8e9739ff1fd8c389efb577",
 };
 
 const FIREBASE_HABILITADO = FIREBASE_CONFIG.apiKey !== "TU_API_KEY" && typeof firebase !== 'undefined';
