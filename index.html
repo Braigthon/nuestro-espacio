@@ -145,13 +145,49 @@
     <section id="tab-aventuras" class="tab-panel" role="tabpanel">
       <div class="card">
         <h2>Aventuras y viajes</h2>
-        <div class="lista-tarjetas" id="lista-aventuras"></div>
+
+        <div id="aventuras-lista-view">
+          <form class="nueva-item-form" id="form-nueva-aventura">
+            <input type="text" id="input-nueva-aventura" placeholder="Nueva aventura..." maxlength="60" required>
+            <button type="submit">Crear</button>
+          </form>
+          <div class="lista-tarjetas" id="lista-aventuras"></div>
+        </div>
+
+        <div id="aventura-detalle-view" hidden>
+          <button class="volver-btn" id="btn-volver-aventuras">&larr; Volver</button>
+          <h3 class="aventura-detalle-titulo" id="aventura-detalle-titulo"></h3>
+          <div class="aventura-seccion">
+            <h4>Descripción</h4>
+            <textarea id="aventura-descripcion" class="aventura-textarea" placeholder="Describe esta aventura..." rows="4"></textarea>
+            <button class="btn-guardar" id="btn-guardar-descripcion">Guardar</button>
+          </div>
+          <div class="aventura-seccion">
+            <h4>Fotos</h4>
+            <label class="subir-foto-btn">
+              Subir fotos
+              <input type="file" id="input-aventura-fotos" accept="image/*" multiple hidden>
+            </label>
+            <div class="fotos-grid" id="aventura-fotos-grid"></div>
+          </div>
+          <div class="aventura-seccion">
+            <h4>Ubicación</h4>
+            <input type="text" id="aventura-ubicacion" class="aventura-input" placeholder="Ej: Cancún, México">
+            <button class="btn-guardar" id="btn-guardar-ubicacion">Guardar</button>
+            <div id="aventura-mapa-container"></div>
+          </div>
+        </div>
       </div>
     </section>
 
     <section id="tab-series" class="tab-panel" role="tabpanel">
       <div class="card">
         <h2>Series que veremos</h2>
+        <form class="nueva-item-form" id="form-nueva-serie">
+          <input type="text" id="input-nueva-serie-titulo" placeholder="Nombre de la serie" maxlength="60" required>
+          <input type="text" id="input-nueva-serie-plataforma" placeholder="Plataforma" maxlength="30">
+          <button type="submit">Agregar</button>
+        </form>
         <div class="lista-checklist" id="lista-series"></div>
       </div>
     </section>
