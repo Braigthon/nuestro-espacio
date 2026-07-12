@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
   setupCandado();
   setupPreguntaFinal();
+  setupLightbox();
+  renderCollage();
   if (typeof setupGaleria === 'function') setupGaleria();
 });
 
@@ -180,6 +182,12 @@ function setupAventuras() {
       var img = document.createElement('img');
       img.src = url;
       img.alt = '';
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', function () {
+        if (typeof window.abrirLightbox === 'function') {
+          window.abrirLightbox(fotos, fi);
+        }
+      });
       var del = document.createElement('button');
       del.className = 'btn-borrar';
       del.textContent = '×';
@@ -406,4 +414,135 @@ function lanzarConfeti() {
     svg.appendChild(use);
     contenedor.appendChild(svg);
   }
+}
+
+// ── LIGHTBOX ──
+
+function setupLightbox() {
+  var lightbox = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lightbox-img');
+  var lbClose = document.getElementById('lightbox-close');
+  var lbPrev = document.getElementById('lightbox-prev');
+  var lbNext = document.getElementById('lightbox-next');
+  var lbCounter = document.getElementById('lightbox-counter');
+  var fotos = [];
+  var idx = 0;
+
+  function mostrar(i) {
+    idx = i;
+    lbImg.src = fotos[idx];
+    lbCounter.textContent = (idx + 1) + ' / ' + fotos.length;
+    lbPrev.style.display = fotos.length > 1 ? '' : 'none';
+    lbNext.style.display = fotos.length > 1 ? '' : 'none';
+  }
+
+  window.abrirLightbox = function (listaFotos, indice) {
+    fotos = listaFotos;
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+    mostrar(indice || 0);
+  };
+
+  lbClose.addEventListener('click', function () {
+    lightbox.hidden = true;
+    document.body.style.overflow = '';
+  });
+
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) {
+      lightbox.hidden = true;
+      document.body.style.overflow = '';
+    }
+  });
+
+  lbPrev.addEventListener('click', function (e) {
+    e.stopPropagation();
+    mostrar((idx - 1 + fotos.length) % fotos.length);
+  });
+
+  lbNext.addEventListener('click', function (e) {
+    e.stopPropagation();
+    mostrar((idx + 1) % fotos.length);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (lightbox.hidden) return;
+    if (e.key === 'Escape') { lightbox.hidden = true; document.body.style.overflow = ''; }
+    if (e.key === 'ArrowLeft') mostrar((idx - 1 + fotos.length) % fotos.length);
+    if (e.key === 'ArrowRight') mostrar((idx + 1) % fotos.length);
+  });
+}
+
+// ── COLLAGE EN INICIO ──
+
+function recopilarTodasLasFotosLocal() {
+  var todas = [];
+  var aventuras = cargarDatos('aventuras', []);
+  aventuras.forEach(function (a) {
+    if (a.fotos) a.fotos.forEach(function (url) { todas.push(url); });
+  });
+  var galeria = JSON.parse(localStorage.getItem('fer_galeria') || '{"albumes":[]}');
+  galeria.albumes.forEach(function (album) {
+    if (album.fotos) album.fotos.forEach(function (f) {
+      todas.push(typeof f === 'string' ? f : f.url);
+    });
+  });
+  return todas;
+}
+
+function recopilarTodasLasFotos(callback) {
+  var todas = recopilarTodasLasFotosLocal();
+  if (!FIREBASE_HABILITADO || !db) {
+    callback(todas);
+    return;
+  }
+  db.collection('albumes').get().then(function (snap) {
+    var promesas = [];
+    snap.forEach(function (doc) {
+      promesas.push(
+        db.collection('albumes').doc(doc.id).collection('fotos').get()
+      );
+    });
+    return Promise.all(promesas);
+  }).then(function (resultados) {
+    resultados.forEach(function (fotosSnap) {
+      fotosSnap.forEach(function (fotoDoc) {
+        var url = fotoDoc.data().url;
+        if (url && todas.indexOf(url) === -1) todas.push(url);
+      });
+    });
+    callback(todas);
+  }).catch(function () {
+    callback(todas);
+  });
+}
+
+function renderCollage() {
+  recopilarTodasLasFotos(function (todas) {
+    var contenedor = document.getElementById('collage-recuerdos');
+    contenedor.innerHTML = '';
+    if (todas.length === 0) return;
+
+    var seleccion = todas.slice();
+    for (var i = seleccion.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = seleccion[i]; seleccion[i] = seleccion[j]; seleccion[j] = tmp;
+    }
+    seleccion = seleccion.slice(0, 6);
+
+    seleccion.forEach(function (url, fi) {
+      var div = document.createElement('div');
+      div.className = 'collage-foto';
+      var rotacion = (Math.random() - 0.5) * 12;
+      div.style.transform = 'rotate(' + rotacion + 'deg)';
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = '';
+      div.appendChild(img);
+      div.addEventListener('click', function () {
+        abrirLightbox(seleccion, fi);
+      });
+      contenedor.appendChild(div);
+    });
+  });
 }

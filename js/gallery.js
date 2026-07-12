@@ -156,10 +156,17 @@ function setupGaleria() {
       fotosGrid.innerHTML = '<p class="vacio-mensaje">Aún no hay fotos en esta carpeta.</p>';
       return;
     }
-    fotos.forEach((foto) => {
+    const urls = fotos.map((f) => f.url);
+    fotos.forEach((foto, i) => {
       const img = document.createElement('img');
       img.src = foto.url;
       img.alt = '';
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', () => {
+        if (typeof window.abrirLightbox === 'function') {
+          window.abrirLightbox(urls, i);
+        }
+      });
       fotosGrid.appendChild(img);
     });
   }
